@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,18 +13,87 @@ export default function GenerateTestCasePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [figmaLink, setFigmaLink] = useState("")
   const [requirements, setRequirements] = useState("")
-  const [projectName, setProjectName] = useState("")
+  const [manualProjectName, setManualProjectName] = useState("")
+  const [uiDescription, setUiDescription] = useState("")
+  const [manualRequirements, setManualRequirements] = useState("")
 
+  useEffect(() => {
+    // Add event listener for file input
+    const fileInput = document.getElementById('srs-document');
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          document.getElementById('file-name').textContent = file.name;
+        }
+      });
+    }
+  }, []);
+
+  // API CALL FUNCTION FOR FISGMA DESGIN LINK 
   const handleGenerate = async (e) => {
     e.preventDefault()
     setIsGenerating(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsGenerating(false)
-      // Redirect to show test cases page or show success message
-      alert("Test cases generated successfully!")
-    }, 3000)
+    try {
+      // Create form data to send files
+      const formData = new FormData();
+      formData.append("figmaLink", figmaLink);
+      
+      const srsDocument = document.getElementById('srs-document')?.files[0];
+      if (srsDocument) {
+        formData.append("srsDocument", srsDocument);
+      }
+
+      // Here you would call your API endpoint
+      // const response = await fetch("/api/test-cases/generate", {
+      //   method: "POST",
+      //   body: formData,
+      // });
+      
+      // Simulate API call for now
+      setTimeout(() => {
+        setIsGenerating(false)
+        alert("Test cases generated successfully!")
+      }, 3000)
+      
+    } catch (error) {
+      console.error("Error generating test cases:", error);
+      setIsGenerating(false);
+      alert("Failed to generate test cases. Please try again.");
+    }
+  }
+
+  // API CALL FUNCTION FOR MANUAL INPUT
+  const handleManualGenerate = async (e) => {
+    e.preventDefault()
+    setIsGenerating(true)
+
+    try {
+      // Here you would call your API endpoint with manual inputs
+      // const response = await fetch("/api/test-cases/generate-manual", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     projectName: manualProjectName,
+      //     uiDescription: uiDescription,
+      //     requirements: manualRequirements,
+      //   }),
+      // });
+      
+      // Simulate API call for now
+      setTimeout(() => {
+        setIsGenerating(false)
+        alert("Test cases generated successfully!")
+      }, 3000)
+      
+    } catch (error) {
+      console.error("Error generating test cases:", error);
+      setIsGenerating(false);
+      alert("Failed to generate test cases. Please try again.");
+    }
   }
 
   return (
@@ -39,7 +108,10 @@ export default function GenerateTestCasePage() {
       </div>
 
       <Tabs defaultValue="figma" className="w-full max-w-4xl mx-auto">
-      <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto mb-8 p-1 bg-muted/30 rounded-xl shadow-sm">
+        <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto mb-8 p-1 bg-muted/30 rounded-xl shadow-sm">
+          
+          {/* Option Selector */}
+          {/* we need it coz we will have 2 routes to hit one with pdf and one directly using the text */}
           <TabsTrigger 
             value="figma" 
             className="rounded-lg flex px-4 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-300 data-[state=inactive]:hover:bg-muted/80"
@@ -61,22 +133,10 @@ export default function GenerateTestCasePage() {
           <Card className="border-2 border-primary/10 hover:border-primary/30 transition-all duration-300 shadow-md hover:shadow-lg">
             <CardHeader className="space-y-2">
               <CardTitle className="text-2xl text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Generate from Figma</CardTitle>
-              <CardDescription className="text-center text-base">Provide your Figma design link and requirements to generate test cases</CardDescription>
+              <CardDescription className="text-center text-base">Provide your Figma design link and upload your SRS document</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <form onSubmit={handleGenerate} className="space-y-8">
-                <div className="space-y-4 group hover:transform hover:translate-y-[-2px] transition-all duration-300">
-                  <Label htmlFor="project-name" className="text-base group-hover:text-primary transition-colors duration-300">Project Name</Label>
-                  <Input
-                    id="project-name"
-                    placeholder="   Enter project name"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    required
-                    className="border-primary/20 focus:border-primary transition-all duration-300"
-                  />
-                </div>
-
                 <div className="space-y-4 group hover:transform hover:translate-y-[-2px] transition-all duration-300">
                   <Label htmlFor="figma-link" className="text-base group-hover:text-primary transition-colors duration-300">Figma Design Link</Label>
                   <div className="flex space-x-2">
@@ -95,15 +155,33 @@ export default function GenerateTestCasePage() {
                 </div>
 
                 <div className="space-y-4 group hover:transform hover:translate-y-[-2px] transition-all duration-300">
-                  <Label htmlFor="requirements" className="text-base group-hover:text-primary transition-colors duration-300">Software Requirements</Label>
-                  <Textarea
-                    id="requirements"
-                    placeholder="  Enter your software requirements or user stories..."
-                    className="min-h-[200px] border-primary/20 focus:border-primary transition-all duration-300"
-                    value={requirements}
-                    onChange={(e) => setRequirements(e.target.value)}
-                    required
-                  />
+                  <Label htmlFor="srs-document" className="text-base group-hover:text-primary transition-colors duration-300">SRS Document (PDF)</Label>
+                  <div className="border-2 border-dashed border-primary/20 rounded-lg p-6 hover:border-primary/40 transition-all duration-300">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <input
+                        type="file"
+                        id="srs-document"
+                        accept=".pdf"
+                        className="hidden"
+                        required
+                      />
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <FileText className="h-8 w-8 text-primary" />
+                      </div>
+                      <p className="text-sm font-medium">Upload SRS Document</p>
+                      <p className="text-xs text-muted-foreground text-center">Drag and drop or click to browse</p>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => document.getElementById('srs-document').click()}
+                        className="mt-2"
+                      >
+                        Choose File
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2" id="file-name">No file chosen</p>
+                    </div>
+                  </div>
                 </div>
 
                 <Button 
@@ -136,12 +214,14 @@ export default function GenerateTestCasePage() {
               <CardDescription className="text-center text-base">Manually describe your UI components and requirements</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <form onSubmit={handleGenerate} className="space-y-8">
+              <form onSubmit={handleManualGenerate} className="space-y-8">
                 <div className="space-y-4 group hover:transform hover:translate-y-[-2px] transition-all duration-300">
                   <Label htmlFor="project-name-manual" className="text-base group-hover:text-primary transition-colors duration-300">Project Name</Label>
                   <Input 
                     id="project-name-manual" 
-                    placeholder="   Enter project name" 
+                    placeholder="Enter project name" 
+                    value={manualProjectName}
+                    onChange={(e) => setManualProjectName(e.target.value)}
                     required 
                     className="border-primary/20 focus:border-primary transition-all duration-300"
                   />
@@ -151,8 +231,10 @@ export default function GenerateTestCasePage() {
                   <Label htmlFor="ui-description" className="text-base group-hover:text-primary transition-colors duration-300">UI Description</Label>
                   <Textarea
                     id="ui-description"
-                    placeholder="   Describe your UI components, layout, and interactions..."
+                    placeholder="Describe your UI components, layout, and interactions..."
                     className="min-h-[150px] border-primary/20 focus:border-primary transition-all duration-300"
+                    value={uiDescription}
+                    onChange={(e) => setUiDescription(e.target.value)}
                     required
                   />
                 </div>
@@ -161,8 +243,10 @@ export default function GenerateTestCasePage() {
                   <Label htmlFor="requirements-manual" className="text-base group-hover:text-primary transition-colors duration-300">Software Requirements</Label>
                   <Textarea
                     id="requirements-manual"
-                    placeholder="   Enter your software requirements or user stories..."
+                    placeholder="Enter your software requirements or user stories..."
                     className="min-h-[150px] border-primary/20 focus:border-primary transition-all duration-300"
+                    value={manualRequirements}
+                    onChange={(e) => setManualRequirements(e.target.value)}
                     required
                   />
                 </div>
