@@ -8,14 +8,18 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, FileText, Code, CheckCircle, AlertCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { toast } from "@/components/ui/use-toast"
 
 export default function GenerateTestCasePage() {
+  const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
   const [figmaLink, setFigmaLink] = useState("")
   const [requirements, setRequirements] = useState("")
   const [manualProjectName, setManualProjectName] = useState("")
   const [uiDescription, setUiDescription] = useState("")
   const [manualRequirements, setManualRequirements] = useState("")
+  const [generatedTestCaseId, setGeneratedTestCaseId] = useState(null)
 
   useEffect(() => {
     // Add event listener for file input
@@ -34,7 +38,7 @@ export default function GenerateTestCasePage() {
     }
   }, []);
 
-  // API CALL FUNCTION FOR FISGMA DESGIN LINK 
+  // API CALL FUNCTION FOR FIGMA DESIGN LINK 
   const handleGenerate = async (e) => {
     e.preventDefault()
     setIsGenerating(true)
@@ -49,22 +53,60 @@ export default function GenerateTestCasePage() {
         formData.append("srsDocument", srsDocument);
       }
 
-      // Here you would call your API endpoint
-      // const response = await fetch("/api/test-cases/generate", {
-      //   method: "POST",
-      //   body: formData,
-      // });
+      // Call the API to generate test cases
+      const response = await fetch("/api/test-cases/generate", {
+        method: "POST",
+        body: formData,
+      });
       
-      // Simulate API call for now
-      setTimeout(() => {
-        setIsGenerating(false)
-        alert("Test cases generated successfully!")
-      }, 3000)
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate test cases");
+      }
+      
+      const data = await response.json();
+      console.log(data)
+
+      // Store the generated test cases in MongoDB
+      const saveResponse = await fetch("/api/test-cases/store", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          testCases: data
+        }),
+      });
+      
+      
+      if (!saveResponse.ok) {
+        const saveErrorData = await saveResponse.json();
+        throw new Error(saveErrorData.error || "Failed to save test cases");
+      }
+      
+      const saveData = await saveResponse.json();
+      setGeneratedTestCaseId(saveData.id);
+      
+      setIsGenerating(false);
+      
+      toast({
+        title: "Success!",
+        description: "Test cases generated and saved successfully.",
+        variant: "success",
+      });
+      
+      // Redirect to view the generated test cases
+      // router.push(`/test-cases/view/${saveData.id}`);
       
     } catch (error) {
       console.error("Error generating test cases:", error);
       setIsGenerating(false);
-      alert("Failed to generate test cases. Please try again.");
+      
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate test cases. Please try again.",
+        variant: "destructive",
+      });
     }
   }
 
@@ -74,29 +116,69 @@ export default function GenerateTestCasePage() {
     setIsGenerating(true)
 
     try {
-      // Here you would call your API endpoint with manual inputs
-      // const response = await fetch("/api/test-cases/generate-manual", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     projectName: manualProjectName,
-      //     uiDescription: uiDescription,
-      //     requirements: manualRequirements,
-      //   }),
-      // });
+      // Call the API to generate test cases from manual input
+      const response = await fetch("/api/test-cases/generate", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectName: manualProjectName,
+          uiDescription: uiDescription,
+          requirements: manualRequirements,
+        }),
+      });
       
-      // Simulate API call for now
-      setTimeout(() => {
-        setIsGenerating(false)
-        alert("Test cases generated successfully!")
-      }, 3000)
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate test cases");
+      }
+      
+      const data = await response.json();
+      
+      // Store the generated test cases in MongoDB
+      const saveResponse = await fetch("/api/test-cases/store", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectName: manualProjectName,
+          uiDescription,
+          requirements: manualRequirements,
+          testCases: data,
+          source: "manual"
+        }),
+      });
+      
+      if (!saveResponse.ok) {
+        const saveErrorData = await saveResponse.json();
+        throw new Error(saveErrorData.error || "Failed to save test cases");
+      }
+      
+      const saveData = await saveResponse.json();
+      setGeneratedTestCaseId(saveData.id);
+      
+      setIsGenerating(false);
+      
+      toast({
+        title: "Success!",
+        description: "Test cases generated and saved successfully.",
+        variant: "success",
+      });
+      
+      // Redirect to view the generated test cases
+      router.push(`/test-cases/view/${saveData.id}`);
       
     } catch (error) {
       console.error("Error generating test cases:", error);
       setIsGenerating(false);
-      alert("Failed to generate test cases. Please try again.");
+      
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate test cases. Please try again.",
+        variant: "destructive",
+      });
     }
   }
 
@@ -235,17 +317,7 @@ export default function GenerateTestCasePage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <form onSubmit={handleManualGenerate} className="space-y-8">
-                <div className="space-y-4 group hover:transform hover:translate-y-[-2px] transition-all duration-300">
-                  <Label htmlFor="project-name-manual" className="text-base group-hover:text-primary transition-colors duration-300">Project Name</Label>
-                  <Input 
-                    id="project-name-manual" 
-                    placeholder="Enter project name" 
-                    value={manualProjectName}
-                    onChange={(e) => setManualProjectName(e.target.value)}
-                    required 
-                    className="border-primary/20 focus:border-primary transition-all duration-300"
-                  />
-                </div>
+                {/* Project name input removed */}
 
                 <div className="space-y-4 group hover:transform hover:translate-y-[-2px] transition-all duration-300">
                   <Label htmlFor="ui-description" className="text-base group-hover:text-primary transition-colors duration-300">UI Description</Label>

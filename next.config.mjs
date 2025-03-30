@@ -21,6 +21,11 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  reactStrictMode: true,
+  env: {
+    MONGODB_URI: process.env.MONGODB_URI,
+  },
+  
 }
 
 mergeConfig(nextConfig, userConfig)
