@@ -25,6 +25,10 @@ export default function GenerateTestCasePage() {
         const file = e.target.files[0];
         if (file) {
           document.getElementById('file-name').textContent = file.name;
+          document.getElementById('remove-file-btn').classList.remove('hidden');
+        } else {
+          document.getElementById('file-name').textContent = 'No file chosen';
+          document.getElementById('remove-file-btn').classList.add('hidden');
         }
       });
     }
@@ -170,15 +174,31 @@ export default function GenerateTestCasePage() {
                       </div>
                       <p className="text-sm font-medium">Upload SRS Document</p>
                       <p className="text-xs text-muted-foreground text-center">Drag and drop or click to browse</p>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => document.getElementById('srs-document').click()}
-                        className="mt-2"
-                      >
-                        Choose File
-                      </Button>
+                      <div className="flex space-x-2 mt-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => document.getElementById('srs-document').click()}
+                        >
+                          Choose File
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          className="text-destructive border-destructive/20 hover:bg-destructive/10 hidden"
+                          id="remove-file-btn"
+                          onClick={() => {
+                            const fileInput = document.getElementById('srs-document');
+                            fileInput.value = '';
+                            document.getElementById('file-name').textContent = 'No file chosen';
+                            document.getElementById('remove-file-btn').classList.add('hidden');
+                          }}
+                        >
+                          Remove File
+                        </Button>
+                      </div>
                       <p className="text-xs text-muted-foreground mt-2" id="file-name">No file chosen</p>
                     </div>
                   </div>
