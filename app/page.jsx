@@ -10,22 +10,25 @@ export default function Home() {
         <div className="container px-4 md:px-6 relative z-10">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-6 transform transition-transform duration-500 hover:translate-y-[-8px]">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient hover:from-primary/80 hover:to-primary transition-all duration-300">
+              <h1 className="text-3xl pb-2 font-bold tracking-tighter sm:text-4xl md:text-5xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient hover:from-primary/80 hover:to-primary transition-all duration-300">
                 Automated Testing for Figma Designs
               </h1>
               <p className="max-w-[600px] text-muted-foreground md:text-xl leading-relaxed hover:text-foreground transition-colors duration-300">
                 Transform your Figma designs into comprehensive test cases and perform automated QA testing with our
                 powerful platform.
               </p>
-              <div className="flex flex-col gap-3 min-[400px]:flex-row">
+              <div className="flex flex-col   gap-3 min-[400px]:flex-row">
                 <Link href="/test-cases/generate" className="transform transition-all duration-300 hover:scale-105">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg hover:shadow-primary/25">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4 animate-bounce" />
+                  <Button size="lg" className="flex p-3 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-primary/25">
+                    <span className="animate-bounce flex">
+                      Get Started 
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </span>
+                    
                   </Button>
                 </Link>
                 <Link href="#features" className="transform transition-all duration-300 hover:scale-105">
-                  <Button variant="outline" size="lg" className="hover:bg-primary/10 hover:border-primary">
+                  <Button variant="outline" size="lg" className="hover:bg-primary/10 p-3 hover:border-primary">
                     Learn More
                   </Button>
                 </Link>
@@ -192,10 +195,11 @@ export default function Home() {
             </div>
             <div className="flex flex-col gap-3 min-[400px]:flex-row transform transition-all duration-500 hover:scale-105">
               <Link href="/test-cases/generate" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 group">
+                <Button size="lg" className="w-full flex p-3 sm:w-auto bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 group">
+                  <span className="animate-bounce flex">
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </Button>
+                  </span></Button>
               </Link>
             </div>
           </div>
