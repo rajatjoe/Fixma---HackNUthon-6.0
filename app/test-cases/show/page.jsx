@@ -123,9 +123,11 @@ export default function ShowTestCasesPage() {
       </div>
 
       <Card>
+
         <CardHeader>
           <CardTitle>Test Cases</CardTitle>
         </CardHeader>
+        
         <CardContent>
           {loading ? (
             <div className="flex justify-center items-center py-10">
@@ -177,31 +179,87 @@ export default function ShowTestCasesPage() {
               {filteredTestCases.length > 0 ? (
                 <div className="space-y-6">
                   {filteredTestCases.map((testCase) => (
-                    <Card key={testCase.id} className="overflow-hidden">
-                      <CardHeader className="bg-muted/50 pb-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge className={getPriorityColor(testCase.priority)}>
+                    <Card 
+                      key={testCase.id} 
+                      className="overflow-hidden transform hover:scale-[1.01] transition-all duration-300 
+                      border border-slate-200 dark:border-slate-800 hover:border-purple-200 dark:hover:border-purple-800 
+                      hover:shadow-lg hover:shadow-violet-100/20 dark:hover:shadow-violet-900/20"
+                    >
+                      <CardHeader className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 pb-4">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-3 mb-3 animate-fadeIn">
+                              <Badge 
+                                className={`${getPriorityColor(testCase.priority)} px-4 py-1.5 rounded-full 
+                                flex items-center gap-2 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 
+                                transition-all duration-300 cursor-default border-2 border-opacity-20`}
+                              >
+                                <span className="h-2.5 w-2.5 rounded-full bg-current opacity-75 animate-pulse"></span>
                                 {testCase.priority}
                               </Badge>
-                              <span className="text-sm text-muted-foreground">ID: {testCase.id.substring(0, 8)}</span>
-                              <span className="text-sm text-muted-foreground">Created: {testCase.createdAt}</span>
+                              <span className="text-sm bg-emerald-50 dark:bg-emerald-900/30 px-4 py-1.5 rounded-full 
+                                flex items-center gap-2 hover:bg-emerald-100 dark:hover:bg-emerald-800/40 
+                                transition-all duration-200 group hover:shadow-inner">
+                                <span className="text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 
+                                  dark:group-hover:text-emerald-300">ID:</span>
+                                <span className="font-mono font-medium tracking-wide text-emerald-700 dark:text-emerald-300">
+                                  {testCase.id.substring(0, 8)}
+                                </span>
+                              </span>
+                              <span className="text-sm bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 rounded-full 
+                                flex items-center gap-2 hover:bg-amber-100 dark:hover:bg-amber-800/40 
+                                transition-all duration-200 hover:shadow-inner">
+                                <span className="text-amber-600 dark:text-amber-400">Created:</span>
+                                <span className="font-medium text-amber-700 dark:text-amber-300">{testCase.createdAt}</span>
+                              </span>
                             </div>
-                            <CardTitle className="text-xl">{testCase.summary}</CardTitle>
+                            <CardTitle className="text-xl font-bold bg-gradient-to-r from-violet-700 to-purple-600 
+                              dark:from-violet-300 dark:to-purple-400 bg-clip-text text-transparent 
+                              transform hover:scale-[1.01] transition-transform duration-200 leading-tight"
+                            >
+                              {testCase.summary}
+                            </CardTitle>
                           </div>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => handleViewTestCase(testCase)}>
+                          <div className="flex gap-2 mt-1">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleViewTestCase(testCase)}
+                              className="hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-600 
+                              dark:hover:text-violet-400 transition-colors duration-200"
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => toggleExpandTestCase(testCase.id)}>
-                              {expandedTestCase === testCase.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => toggleExpandTestCase(testCase.id)}
+                              className="hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-600 
+                              dark:hover:text-violet-400 transition-colors duration-200"
+                            >
+                              {expandedTestCase === testCase.id ? 
+                                <ChevronUp className="h-4 w-4 transition-transform duration-200 transform hover:-translate-y-0.5" /> : 
+                                <ChevronDown className="h-4 w-4 transition-transform duration-200 transform hover:translate-y-0.5" />
+                              }
                             </Button>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
+                        <div className="flex flex-wrap gap-2 mt-4">
                           {testCase.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="bg-secondary/10">
+                            <Badge 
+                              key={index} 
+                              variant="outline" 
+                              className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 
+                              dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800 
+                              text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full
+                              hover:bg-gradient-to-r hover:from-indigo-100 hover:to-purple-100 
+                              dark:hover:from-indigo-800/30 dark:hover:to-purple-800/30 
+                              transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 
+                              hover:shadow-md hover:shadow-indigo-100/50 dark:hover:shadow-indigo-900/50
+                              font-medium tracking-wide text-sm cursor-default
+                              flex items-center gap-1.5"
+                            >
+                              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 dark:bg-indigo-500 opacity-70"></span>
                               {tag}
                             </Badge>
                           ))}
@@ -248,52 +306,73 @@ export default function ShowTestCasesPage() {
 
       {/* Test Case Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gradient-to-b from-white to-slate-50 dark:from-gray-900 dark:to-gray-950 border border-blue-100/50 dark:border-blue-900/20 shadow-lg rounded-lg transition-all duration-300 transform scale-100">
           {selectedTestCase && (
             <>
-              <DialogHeader>
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge className={getPriorityColor(selectedTestCase.priority)}>
+              <DialogHeader className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 -mx-6 -mt-6 px-6 pt-6 pb-4 rounded-t-lg border-b border-blue-100/50 dark:border-blue-900/20">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Badge className={`${getPriorityColor(selectedTestCase.priority)} px-3 py-1 text-sm font-medium shadow-sm hover:shadow transition-all duration-200`}>
                     {selectedTestCase.priority}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">ID: {selectedTestCase.id}</span>
+                  <span className="text-sm text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                    ID: {selectedTestCase.id.substring(0, 10)}...
+                  </span>
                 </div>
-                <DialogTitle className="text-2xl">{selectedTestCase.summary}</DialogTitle>
-                <DialogDescription className="flex flex-wrap gap-2 mt-2">
+                <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">{selectedTestCase.summary}</DialogTitle>
+                <DialogDescription className="flex flex-wrap gap-2 mt-3">
                   {selectedTestCase.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="bg-secondary/10">
+                    <Badge 
+                      key={index} 
+                      variant="outline" 
+                      className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800/30 transition-colors duration-200"
+                    >
                       {tag}
                     </Badge>
                   ))}
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-4">Test Steps</h3>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12">#</TableHead>
-                        <TableHead>Test Step</TableHead>
-                        <TableHead>Expected Result</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedTestCase.test_cases.map((step, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{step.step}</TableCell>
-                          <TableCell>{step.expected_result}</TableCell>
+              <div className="mt-6 transition-all duration-300 hover:translate-y-[-2px]">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                  <span className="inline-block w-1 h-6 bg-blue-500 rounded-full mr-1"></span>
+                  Test Steps
+                  <span className="text-sm font-normal text-slate-500 dark:text-slate-400 ml-2 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                    {selectedTestCase.test_cases.length} {selectedTestCase.test_cases.length === 1 ? 'step' : 'steps'}
+                  </span>
+                </h3>
+                <div className="rounded-lg border border-blue-100 dark:border-blue-900/30 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                        <TableRow className="border-b border-blue-100 dark:border-blue-800/20">
+                          <TableHead className="w-12 font-semibold text-blue-800 dark:text-blue-300">#</TableHead>
+                          <TableHead className="font-semibold text-blue-800 dark:text-blue-300">Test Step</TableHead>
+                          <TableHead className="font-semibold text-blue-800 dark:text-blue-300">Expected Result</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedTestCase.test_cases.map((step, index) => (
+                          <TableRow 
+                            key={index}
+                            className={`hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50/50 dark:bg-slate-800/10'}`}
+                          >
+                            <TableCell className="font-medium text-blue-600 dark:text-blue-400 w-12">{index + 1}</TableCell>
+                            <TableCell className="font-medium">{step.step}</TableCell>
+                            <TableCell className="text-slate-600 dark:text-slate-300 italic">{step.expected_result}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex justify-end mt-6">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex justify-end mt-8 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDialogOpen(false)}
+                  className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800/30 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-200 px-6 hover:scale-105"
+                >
                   Close
                 </Button>
               </div>
