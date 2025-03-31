@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Download, Eye, Filter, Search, Loader2, ChevronDown, ChevronUp } from "lucide-react"
+import { Download, Eye, Filter, Search, Loader2, ChevronDown, ChevronUp, Code } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
 
 export default function ShowTestCasesPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -21,6 +22,10 @@ export default function ShowTestCasesPage() {
   const [selectedTestCase, setSelectedTestCase] = useState(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [expandedTestCase, setExpandedTestCase] = useState(null)
+  const [isScriptModalOpen, setIsScriptModalOpen] = useState(false)
+  const [currentTestCase, setCurrentTestCase] = useState(null)
+  const [websiteUrl, setWebsiteUrl] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
 
   // Fetch test cases from API
   useEffect(() => {
@@ -108,6 +113,56 @@ export default function ShowTestCasesPage() {
       setExpandedTestCase(null)
     } else {
       setExpandedTestCase(id)
+    }
+  }
+  
+  const handleGenerateScript = (testCase) => {
+    setCurrentTestCase(testCase)
+    setWebsiteUrl("")
+    setIsScriptModalOpen(true)
+  }
+  
+  const handleScriptGeneration = async () => {
+    if (!websiteUrl.trim()) {
+      alert("Please enter a website URL")
+      return
+    }
+  
+    try {
+      setIsGenerating(true)
+      console.log(currentTestCase)
+      
+      // No need to fetch test case data again since we already have it in currentTestCase
+      const response = await fetch('/api/script/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          testCase: currentTestCase,
+          websiteUrl: websiteUrl.trim()
+        }),
+      })
+  
+      if (!response.ok) {
+        throw new Error('Failed to generate script')
+      }
+  
+      const data = await response.json()
+      
+      if (data.success) {
+        setIsScriptModalOpen(false)
+        alert('Script generated successfully!')
+        // Optionally, you can store or display the generated script
+        // data.script contains the generated selenium script
+      } else {
+        throw new Error(data.error || 'Failed to generate script')
+      }
+    } catch (error) {
+      console.error('Error generating script:', error)
+      alert('Failed to generate script. Please try again.')
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -220,6 +275,7 @@ export default function ShowTestCasesPage() {
                               {testCase.summary}
                             </CardTitle>
                           </div>
+                          {/* side buttons on top right  */}
                           <div className="flex gap-2 mt-1">
                             <Button 
                               variant="ghost" 
@@ -242,8 +298,18 @@ export default function ShowTestCasesPage() {
                                 <ChevronDown className="h-4 w-4 transition-transform duration-200 transform hover:translate-y-0.5" />
                               }
                             </Button>
+                            {/* Add the script generation button here */}
+                            <button
+                              onClick={() => handleGenerateScript(testCase)}
+                              className="p-2 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/20 
+                              text-emerald-600 dark:text-emerald-400 transition-colors duration-200"
+                              title="Generate Selenium Script"
+                            >
+                              <Code className="h-4 w-4" />
+                            </button>
                           </div>
                         </div>
+                        {/* tags */}
                         <div className="flex flex-wrap gap-2 mt-4">
                           {testCase.tags.map((tag, index) => (
                             <Badge 
@@ -264,6 +330,7 @@ export default function ShowTestCasesPage() {
                             </Badge>
                           ))}
                         </div>
+                        
                       </CardHeader>
                       
                       {expandedTestCase === testCase.id && (
@@ -380,6 +447,77 @@ export default function ShowTestCasesPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Script Generation Modal */}
+      {isScriptModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 transform transition-all">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Generate Selenium Script
+              </h3>
+              <button
+                onClick={() => setIsScriptModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 
+                dark:hover:text-gray-200 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Website URL
+              </label>
+              <input
+                type="url"
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 
+                dark:bg-gray-700 dark:text-white transition-colors"
+              />
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Enter the website URL for test script generation
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsScriptModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
+                bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleScriptGeneration}
+                disabled={isGenerating || !websiteUrl.trim()}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-md 
+                transition-colors ${isGenerating || !websiteUrl.trim() 
+                  ? 'bg-emerald-400 cursor-not-allowed' 
+                  : 'bg-emerald-600 hover:bg-emerald-700'}`}
+              >
+                {isGenerating ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Generating...
+                  </span>
+                ) : (
+                  'Generate Script'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

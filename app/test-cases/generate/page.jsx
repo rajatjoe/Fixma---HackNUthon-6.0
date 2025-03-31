@@ -96,7 +96,7 @@ export default function GenerateTestCasePage() {
       });
       
       // Redirect to view the generated test cases
-      // router.push(`/test-cases/view/${saveData.id}`);
+      router.push('/test-cases/show');
       
     } catch (error) {
       console.error("Error generating test cases:", error);
