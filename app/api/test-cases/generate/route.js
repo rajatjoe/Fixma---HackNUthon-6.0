@@ -49,22 +49,21 @@ export async function POST(request) {
 // Handle manual input generation
 export async function PUT(request) {
   try {
-    const { projectName, uiDescription, requirements } = await request.json();
+    const { uiDescription, requirements } = await request.json();
     
-    if (!projectName || !uiDescription || !requirements) {
+    if (!uiDescription || !requirements) {
       return NextResponse.json({ 
-        error: 'Project name, UI description, and requirements are required' 
+        error: 'UI description and requirements are required' 
       }, { status: 400 });
     }
     
     // Call the model API with manual inputs
-    const response = await fetch('https://hack-nu-thon-6-0-multi-agent.onrender.com/process', {
+    const response = await fetch('https://hack-nu-thon-6-0-multi-agent.onrender.com/manual_input', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        project_name: projectName,
         ui_description: uiDescription,
         requirements: requirements,
       }),

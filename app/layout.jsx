@@ -8,7 +8,7 @@ import Chatbot from "@/components/chatbot"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "TestCraft - Figma Design Testing Platform",
+  title: "Fixma - Figma Design Testing Platform",
   description: "Generate and manage test cases for Figma designs and perform QA testing",
     generator: 'v0.dev'
 }
