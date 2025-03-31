@@ -1,290 +1,254 @@
-// here we will create a page which is going to display the repsonse from the scripting model for generating selenium script and then also give the option to the user to run the script for a particular website 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Play, Download, ArrowLeft, CheckCircle, XCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Loader2, Play, RefreshCcw } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
-import { Badge } from "@/components/ui/badge"
 
 export default function ScriptTestingPage() {
-  const router = useRouter()
-  const [scriptData, setScriptData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [isRunning, setIsRunning] = useState(false)
-  const [runResults, setRunResults] = useState(null)
+  const [websiteUrl, setWebsiteUrl] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedScript, setGeneratedScript] = useState(null)
+  const [testResults, setTestResults] = useState(null)
 
-  useEffect(() => {
-    const fetchScript = async () => {
-      try {
-        setLoading(true)
-        const scriptId = localStorage.getItem("generatedScriptId")
-        
-        if (!scriptId) {
-          throw new Error("No script ID found. Please generate a script first.")
-        }
-        
-        const response = await fetch(`/api/script/fetch?id=${scriptId}`)
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch script")
-        }
-        
-        const data = await response.json()
-        setScriptData(data)
-      } catch (err) {
-        console.error("Error fetching script:", err)
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchScript()
-  }, [])
-
-  const handleRunScript = async () => {
-    try {
-      setIsRunning(true)
-      
-      // Simulate script execution (in a real app, you would call an API to run the script)
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      
-      // Mock results (in a real app, these would come from the API)
-      setRunResults({
-        success: true,
-        passedTests: 3,
-        failedTests: 1,
-        totalTests: 4,
-        duration: "00:01:45",
-        details: [
-          { step: "Navigate to homepage", status: "passed", message: "Successfully navigated to homepage" },
-          { step: "Click login button", status: "passed", message: "Successfully clicked login button" },
-          { step: "Enter credentials", status: "passed", message: "Successfully entered credentials" },
-          { step: "Verify dashboard", status: "failed", message: "Element not found: dashboard-header" }
-        ]
-      })
-      
-      toast({
-        title: "Script execution completed",
-        description: "The script has been executed successfully.",
-        variant: "default",
-      })
-    } catch (error) {
-      console.error("Error running script:", error)
-      toast({
-        title: "Error",
-        description: "Failed to run script. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsRunning(false)
-    }
+  // Sample test case for mockup
+  const sampleTestCase = {
+    id: "TC001",
+    summary: "Login Functionality Test",
+    description: "Test the user login process with valid credentials",
+    steps: [
+      "Navigate to login page",
+      "Enter valid username",
+      "Enter valid password",
+      "Click login button",
+      "Verify successful login"
+    ],
+    expectedResult: "User should be successfully logged in and redirected to dashboard"
   }
 
-  const handleDownloadScript = () => {
-    if (!scriptData) return
+  // Sample generated script
+  const sampleScript = `from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_login():
+    # Setup webdriver
+    driver = webdriver.Chrome()
+    driver.get("${websiteUrl}")
     
-    const element = document.createElement("a")
-    const file = new Blob([scriptData.script], { type: "text/plain" })
-    element.href = URL.createObjectURL(file)
-    element.download = `selenium_script_${scriptData._id}.py`
-    document.body.appendChild(element)
-    element.click()
-    document.body.removeChild(element)
+    try:
+        # Find and click login button
+        login_button = driver.find_element(By.ID, "login-btn")
+        login_button.click()
+        
+        # Enter credentials
+        username = driver.find_element(By.ID, "username")
+        username.send_keys("testuser")
+        
+        password = driver.find_element(By.ID, "password")
+        password.send_keys("testpass")
+        
+        # Submit form
+        submit = driver.find_element(By.ID, "submit-btn")
+        submit.click()
+        
+        # Wait for dashboard
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "dashboard"))
+        )
+        
+        print("Test passed: Successfully logged in!")
+        return True
+        
+    except Exception as e:
+        print(f"Test failed: {str(e)}")
+        return False
+        
+    finally:
+        driver.quit()
+
+if __name__ == "__main__":
+    test_login()`
+
+  const handleGenerateScript = async () => {
+    if (!websiteUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a website URL",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsGenerating(true)
+    
+    // Simulate script generation
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    setGeneratedScript(sampleScript)
+    
+    toast({
+      title: "Success",
+      description: "Selenium script generated successfully!",
+    })
+    
+    setIsGenerating(false)
+  }
+
+  const handleRunTest = async () => {
+    setTestResults(null)
+    
+    // Simulate test execution
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    
+    setTestResults({
+      success: true,
+      steps: [
+        { name: "Navigate to login page", status: "passed", duration: "0.5s" },
+        { name: "Enter valid username", status: "passed", duration: "0.3s" },
+        { name: "Enter valid password", status: "passed", duration: "0.2s" },
+        { name: "Click login button", status: "passed", duration: "0.3s" },
+        { name: "Verify successful login", status: "passed", duration: "1.2s" }
+      ],
+      totalDuration: "2.5s"
+    })
   }
 
   return (
-    <div className="container py-10 space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tighter">Selenium Script Testing</h1>
-          <p className="text-muted-foreground text-lg">Run and test your generated Selenium scripts</p>
-        </div>
-        <Button 
-          variant="outline" 
-          onClick={() => router.back()}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+    <div className="container py-8 space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">Selenium Script Testing</h1>
+        <p className="text-muted-foreground">Generate and run Selenium tests for your website</p>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-lg">Loading script...</span>
-        </div>
-      ) : error ? (
-        <div className="text-center py-20 text-red-500">
-          <p>Error: {error}</p>
-          <Button variant="outline" className="mt-4" onClick={() => router.push("/test-cases/show")}>
-            Go Back to Test Cases
-          </Button>
-        </div>
-      ) : scriptData ? (
-        <div className="space-y-8">
-          <Card className="border-2 border-primary/10 hover:border-primary/30 transition-all duration-300 shadow-md hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
-              <div className="flex flex-wrap items-center gap-3 mb-2">
-                <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 px-3 py-1">
-                  Selenium Script
-                </Badge>
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-3 py-1">
-                  {scriptData.websiteUrl}
-                </Badge>
-              </div>
-              <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {scriptData.testCaseSummary}
-              </CardTitle>
-              <CardDescription>
-                Generated on {new Date(scriptData.createdAt).toLocaleString()}
-              </CardDescription>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Left Column - Input and Test Case */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Website Configuration</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <Tabs defaultValue="script" className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto mb-4">
-                  <TabsTrigger value="script">Script</TabsTrigger>
-                  <TabsTrigger value="results">Results</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="script" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">Generated Selenium Script</h3>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={handleDownloadScript}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </Button>
-                      <Button 
-                        onClick={handleRunScript}
-                        disabled={isRunning}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
-                      >
-                        {isRunning ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Running...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4" />
-                            Run Script
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-950 text-slate-50 p-4 rounded-md overflow-x-auto">
-                    <pre className="font-mono text-sm whitespace-pre-wrap">
-                      {scriptData.script}
-                    </pre>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="results" className="space-y-4">
-                  {runResults ? (
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <Card className="bg-slate-50 dark:bg-slate-900">
-                          <CardContent className="p-6 text-center">
-                            <p className="text-sm text-muted-foreground mb-1">Status</p>
-                            <p className={`text-xl font-bold ${runResults.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                              {runResults.success ? 'Passed' : 'Failed'}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-slate-50 dark:bg-slate-900">
-                          <CardContent className="p-6 text-center">
-                            <p className="text-sm text-muted-foreground mb-1">Passed Tests</p>
-                            <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                              {runResults.passedTests}/{runResults.totalTests}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-slate-50 dark:bg-slate-900">
-                          <CardContent className="p-6 text-center">
-                            <p className="text-sm text-muted-foreground mb-1">Failed Tests</p>
-                            <p className="text-xl font-bold text-red-600 dark:text-red-400">
-                              {runResults.failedTests}/{runResults.totalTests}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-slate-50 dark:bg-slate-900">
-                          <CardContent className="p-6 text-center">
-                            <p className="text-sm text-muted-foreground mb-1">Duration</p>
-                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                              {runResults.duration}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-semibold">Test Details</h3>
-                        <div className="rounded-md border">
-                          <div className="divide-y">
-                            {runResults.details.map((detail, index) => (
-                              <div key={index} className="p-4 flex items-start gap-3">
-                                {detail.status === 'passed' ? (
-                                  <CheckCircle className="h-5 w-5 text-emerald-500 mt-0.5" />
-                                ) : (
-                                  <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
-                                )}
-                                <div>
-                                  <p className="font-medium">{detail.step}</p>
-                                  <p className={`text-sm ${detail.status === 'passed' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {detail.message}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Website URL</label>
+                  <Input 
+                    placeholder="https://example.com" 
+                    value={websiteUrl}
+                    onChange={(e) => setWebsiteUrl(e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={handleGenerateScript}
+                  disabled={isGenerating || !websiteUrl}
+                  className="w-full"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating Script...
+                    </>
                   ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                      <p>No results yet. Run the script to see results.</p>
-                      <Button 
-                        onClick={handleRunScript}
-                        disabled={isRunning}
-                        className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        {isRunning ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Running...
-                          </>
-                        ) : (
-                          "Run Script"
-                        )}
-                      </Button>
-                    </div>
+                    "Generate Selenium Script"
                   )}
-                </TabsContent>
-              </Tabs>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Test Case Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold">{sampleTestCase.id}: {sampleTestCase.summary}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{sampleTestCase.description}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Test Steps:</h4>
+                  <ol className="list-decimal list-inside space-y-1">
+                    {sampleTestCase.steps.map((step, index) => (
+                      <li key={index} className="text-sm">{step}</li>
+                    ))}
+                  </ol>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">Expected Result:</h4>
+                  <p className="text-sm">{sampleTestCase.expectedResult}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
-      ) : (
-        <div className="text-center py-20 text-muted-foreground">
-          <p>No script found. Please generate a script first.</p>
-          <Button variant="outline" className="mt-4" onClick={() => router.push("/test-cases/show")}>
-            Go to Test Cases
-          </Button>
+
+        {/* Right Column - Generated Script and Results */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle>Generated Selenium Script</CardTitle>
+              {generatedScript && (
+                <Button 
+                  onClick={handleRunTest}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Play className="mr-2 h-4 w-4" />
+                  Run Test
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {generatedScript ? (
+                <pre className="bg-slate-950 text-slate-50 p-4 rounded-md overflow-x-auto">
+                  <code className="text-sm">{generatedScript}</code>
+                </pre>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  Enter a website URL and generate a script to see it here
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {testResults && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Test Results</span>
+                  <span className={`text-sm ${testResults.success ? 'text-green-600' : 'text-red-600'}`}>
+                    {testResults.success ? 'Passed' : 'Failed'}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {testResults.steps.map((step, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <span>{step.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">{step.duration}</span>
+                        <span className={step.status === 'passed' ? 'text-green-600' : 'text-red-600'}>
+                          {step.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="pt-4 border-t">
+                    <div className="flex justify-between text-sm font-medium">
+                      <span>Total Duration</span>
+                      <span>{testResults.totalDuration}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { Code2, Download, Loader2, RefreshCw } from "lucide-react";
 
 export default function TestFigmaAPI() {
   const [figmaUrl, setFigmaUrl] = useState('');
@@ -200,127 +201,146 @@ export default function TestFigmaAPI() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">Figma JSON Fetcher</h1>
-        
-        <form onSubmit={handleSubmit} className="mb-8">
-          <div className="mb-4">
-            <label htmlFor="figmaUrl" className="block text-sm font-medium text-gray-700 mb-2">
-              Figma URL:
-            </label>
-            <input
-              type="text"
-              id="figmaUrl"
-              value={figmaUrl}
-              onChange={(e) => setFigmaUrl(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="https://www.figma.com/file/..."
-              required
-            />
-            <p className="mt-1 text-sm text-gray-500">
-              Enter a valid Figma design URL (e.g., https://www.figma.com/file/abcdef123456/Design)
-            </p>
-          </div>
-          
-          <button 
-            type="submit" 
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Loading...
-              </span>
-            ) : 'Fetch Figma JSON'}
-          </button>
-        </form>
+    <div className="container py-12 md:py-16 space-y-12 px-4 md:px-6">
+      <div className="space-y-4 text-center max-w-3xl mx-auto animate-fade-in">
+        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          Figma Component Extractor
+        </h1>
+        <p className="text-muted-foreground text-lg md:text-xl">
+          Extract and analyze components from your Figma design files
+        </p>
+      </div>
 
-        {error && (
-          <div className="p-4 mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-card rounded-xl p-6 md:p-8 shadow-lg border border-primary/10 hover:shadow-xl transition-all duration-300">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label htmlFor="figmaUrl" className="text-lg font-semibold text-primary">
+                Figma Design URL
+              </label>
+              <input
+                type="text"
+                id="figmaUrl"
+                value={figmaUrl}
+                onChange={(e) => setFigmaUrl(e.target.value)}
+                className="w-full p-4 rounded-lg border border-primary/20 bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300"
+                placeholder="https://www.figma.com/file/..."
+                required
+              />
+              <p className="text-sm text-muted-foreground">
+                Enter the URL of your Figma design file to extract components
+              </p>
+            </div>
+            
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:transform-none"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Code2 className="w-5 h-5" />
+                  <span>Extract Components</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {error && (
+            <div className="mt-6 p-4 bg-destructive/10 border-l-4 border-destructive rounded-md">
+              <div className="flex items-center gap-3 text-destructive">
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">Error: {error}</p>
+                <p className="font-medium">{error}</p>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {components.length > 0 && (
-          <div className="mt-6 mb-8">
-            <div className="bg-gray-800 text-white p-3 rounded-t-md flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Main Components ({components.length})</h2>
-              <button 
-                onClick={toggleSelectAll}
-                className="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"
-              >
-                Select All
-              </button>
-            </div>
-            <div className="border border-gray-300 rounded-b-md divide-y divide-gray-300 max-h-[50vh] overflow-y-auto">
-              {components.map((component) => (
-                <div key={component.id} className="flex items-center p-3 hover:bg-gray-100">
-                  <input
-                    type="checkbox"
-                    id={component.id}
-                    checked={component.selected}
-                    onChange={() => toggleComponent(component.id)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <div className="ml-3 flex items-center">
-                    <div className={`h-6 w-6 ${component.depth === 0 ? 'bg-purple-500' : component.depth === 1 ? 'bg-blue-500' : component.depth === 2 ? 'bg-green-500' : 'bg-yellow-500'} rounded-full flex items-center justify-center text-white text-xs mr-2`}>
-                      {component.depth}
-                    </div>
-                    <div>
-                      <label htmlFor={component.id} className="text-sm font-medium text-gray-700 cursor-pointer">
-                        {component.name}
-                      </label>
-                      <div className="flex items-center">
-                        <span className="text-xs text-gray-500 mr-2">{component.type}</span>
-                        {component.childCount > 0 && (
-                          <span className="text-xs bg-gray-200 px-1.5 py-0.5 rounded-full">
-                            {component.childCount} child elements
-                          </span>
-                        )}
+          {components.length > 0 && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-primary flex items-center gap-2">
+                  <Code2 className="w-5 h-5" />
+                  Components ({components.length})
+                </h2>
+                <button 
+                  onClick={toggleSelectAll}
+                  className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-md transition-colors duration-300 flex items-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Toggle All
+                </button>
+              </div>
+
+              <div className="border border-primary/10 rounded-lg divide-y divide-primary/10 max-h-[60vh] overflow-y-auto">
+                {components.map((component) => (
+                  <div 
+                    key={component.id} 
+                    className="flex items-center p-4 hover:bg-primary/5 transition-colors duration-300 group"
+                  >
+                    <input
+                      type="checkbox"
+                      id={component.id}
+                      checked={component.selected}
+                      onChange={() => toggleComponent(component.id)}
+                      className="h-5 w-5 rounded border-primary/30 text-primary focus:ring-primary/30 transition-all duration-300"
+                    />
+                    <div className="ml-4 flex items-center flex-1">
+                      <div className={`h-8 w-8 rounded-full flex items-center justify-center text-primary-foreground
+                        ${component.depth === 0 ? 'bg-purple-500' : 
+                          component.depth === 1 ? 'bg-blue-500' : 
+                          component.depth === 2 ? 'bg-green-500' : 'bg-amber-500'} 
+                        transform group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        {component.depth}
+                      </div>
+                      <div className="ml-3">
+                        <label htmlFor={component.id} className="font-medium cursor-pointer group-hover:text-primary transition-colors duration-300">
+                          {component.name}
+                        </label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-sm text-muted-foreground">{component.type}</span>
+                          {component.childCount > 0 && (
+                            <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+                              {component.childCount} children
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                ))}
+              </div>
 
-        {components.length > 0 && components.some(comp => comp.selected) && (
-          <div className="mb-8">
-            <button
-              onClick={generateTestCasesJson}
-              className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-            >
-              Generate Test Cases JSON for Selected Components
-            </button>
-          </div>
-        )}
-
-        {result && (
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-3 text-gray-800">JSON Response:</h2>
-            <div className="bg-gray-100 rounded-md p-4 overflow-auto max-h-[60vh]">
-              <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                {JSON.stringify(result, null, 2)}
-              </pre>
+              {components.some(comp => comp.selected) && (
+                <button
+                  onClick={generateTestCasesJson}
+                  className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <Download className="w-5 h-5" />
+                  Generate Test Cases JSON
+                </button>
+              )}
             </div>
-          </div>
-        )}
+          )}
+
+          {result && (
+            <div className="mt-8 space-y-4">
+              <h2 className="text-xl font-semibold text-primary">Raw JSON Response</h2>
+              <div className="bg-slate-950 rounded-lg p-6 overflow-auto max-h-[40vh]">
+                <pre className="text-slate-50 text-sm">
+                  {JSON.stringify(result, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
